@@ -1,0 +1,213 @@
+---
+title: "ESM 232 Hunting Assignment"
+author: "Kelsey Warren & Maxwell Pepperdine"
+format: 
+  html:
+    toc: true
+    embed-resources: true
+date: last-modified
+editor: visual
+editor_options: 
+  chunk_output_type: console
+execute:
+  message: false
+  warning: false
+---
+
+## Load packages
+
+```{r}
+rm(list=ls())
+```
+
+```{r, echo=TRUE, output=FALSE}
+library(here)
+library(lhs)
+library(epiR)
+library(tidyverse)
+library(deSolve)
+```
+
+## Overview
+
+This assignment is designed to explore the effects of hunting on predator-prey dynamics using a modified Lotka-Volterra model. We will build a model that incorporates hunting, define a stability metric, and explore different hunting levels and minimum prey populations to find sustainable hunting targets. It's split into two parts:
+
+* **Part 1:** Building the hunting model
+* **Part 2:** Exploring different hunting levels and minimum prey populations to find sustainable hunting targets.
+
+## Part 1
+
+We first need to build a model that includes hunting. This will be similar to the `lotvmodK.R` model, but with an added hunting component. This model needs to ensure that we don't hunt more prey than exist. To do this, we can add a minimum prey population input that must be met before hunting is allowed (only turn on hunting above this value).
+
+#### Build the hunting model 
+
+```{r}
+# load the hunting model
+source(here::here("R/hunt_lotvmodK.R"))
+
+# call the model
+hunt_lotvmodK
+```
+
+## Part 2
+
+In this section, our goal is to explore how different hunting levels and different minimum prey populations (before hunting is allowed) are likely to effect the stability of the populations of both predator and prey. To do this, we will define a stability metric which we can use to estimate sustainable hunting levels, play around with different parameter sets, and then use this exploration to recommend a hunting target that will be sustainable (e.g leave you with a stable prey and predator population).
+
+#### Defining stability
+
+For the purpose of this assignment, we're defining stability as the ability of the prey and predator populations to remain above a threshold of **50 individuals** for **10 years** into the future. We're assuming the reproduction cycle of prey populations are much shorter than 10 years, and we want to maintain a population size that's at least 50 individuals over this time.
+
+#### Exploring hunting levels & minimum prey populations
+
+To "explore" hunting, we're simply trying different values for the hunting rate in the `hunt_lotvmodK` model until we find a value that allows the prey population to remain above 50 individuals for 10 years (3650 days) into the future.
+
+For all of the following model runs, we keep all parameters constant except for the hunting rate and run the model for 10 years to see how the populations of both predator and prey change over time. After each run we check the prey population at the end of the 10 years to see if it is above 50 individuals. If it is, we consider that a "sustainable" hunting target.
+
+###### Take 1 
+
+* `hunt_rate` = 0.5 
+
+```{r}
+# set parameter list (best guess assumptions from assignment description)
+pars <- c(rprey = 0.95, alpha = 0.01, eff = 0.6, pmort = 0.4, 
+           K = 2000, hunt_rate = 0.5, min_prey_thresh = 50)
+
+
+# evaluate 10 years into the future 
+days <- seq(from = 1, to = 3650)
+
+# see what happens when we start with 1000 prey and 100 predators
+currpop <- c(prey = 500, pred = 100)
+# run our differential equation solver
+res <- ode(func = hunt_lotvmodK, y = currpop, times = days, parms = pars)
+# extract the results
+res_take1 <- as.data.frame(res) %>% 
+  gather(key = "animal", value = "pop", -time)
+# graph both populations over time
+p1 <- ggplot(res_take1, aes(time, pop, col = animal)) +
+  geom_line() + 
+  theme_classic()
+p1
+
+# check our metric value (prey pop above at least 50 individuals after 10 years)
+# this is how we define stability
+if (!3650 %in% res_take1$time) {
+  print("Hunting target is not sustainable: model did not reach 10 years.")
+} else if (res_take1$pop[res_take1$time == 3650 & res_take1$animal == "prey"] >= 50) {
+  print("The hunting target is sustainable.")
+} else {
+  print("Hunting target is not sustainable: prey population below threshold.")
+}
+```
+
+###### Take 2
+
+* `hunt_rate` = 0.4 
+
+```{r}
+# set parameter list 
+pars <- c(rprey = 0.95, alpha = 0.01, eff = 0.6, pmort = 0.4, 
+           K = 2000, hunt_rate = 0.4, min_prey_thresh = 50)
+
+
+# run our differential equation solver
+res <- ode(func = hunt_lotvmodK, y = currpop, times = days, parms = pars)
+# extract the results
+res_take2 <- as.data.frame(res) %>% 
+  gather(key = "animal", value = "pop", -time)
+# graph both populations over time
+p2 <- ggplot(res_take2, aes(time, pop, col = animal)) +
+  geom_line() + 
+  theme_classic()
+p2
+
+
+# check our metric value (prey pop above at least 50 individuals after 10 years)
+# this is how we define stability
+if (!3650 %in% res_take2$time) {
+  print("Hunting target is not sustainable: model did not reach 10 years.")
+} else if (res_take2$pop[res_take2$time == 3650 & res_take2$animal == "prey"] >= 50) {
+  print("The hunting target is sustainable: prey population above threshold 10 years into the future.")
+} else {
+  print("Hunting target is not sustainable: prey population below threshold.")
+}
+```
+
+###### Take 3
+
+* `hunt_rate` = 0.3 
+
+```{r}
+# set parameter list 
+pars <- c(rprey = 0.95, alpha = 0.01, eff = 0.6, pmort = 0.4, 
+           K = 2000, hunt_rate = 0.3, min_prey_thresh = 50)
+
+
+# run our differential equation solver
+res <- ode(func = hunt_lotvmodK, y = currpop, times = days, parms = pars)
+# extract the results
+res_take3 <- as.data.frame(res) %>% 
+  gather(key = "animal", value = "pop", -time)
+# graph both populations over time
+p3 <- ggplot(res_take3, aes(time, pop, col = animal)) +
+  geom_line() + 
+  theme_classic()
+p3
+
+
+# check our metric value (prey pop above at least 50 individuals after 10 years)
+# this is how we define stability
+if (!3650 %in% res_take3$time) {
+  print("Hunting target is not sustainable: model did not reach 10 years.")
+} else if (res_take3$pop[res_take3$time == 3650 & res_take3$animal == "prey"] >= 50) {
+  print("The hunting target is sustainable: prey population above threshold 10 years into the future.")
+} else {
+  print("Hunting target is not sustainable: prey population below threshold.")
+}
+```
+
+###### Take 4
+
+* `hunt_rate` = 0.2 
+
+```{r}
+# set parameter list 
+pars <- c(rprey = 0.95, alpha = 0.01, eff = 0.6, pmort = 0.4, 
+           K = 2000, hunt_rate = 0.2, min_prey_thresh = 50)
+
+
+# run our differential equation solver
+res <- ode(func = hunt_lotvmodK, y = currpop, times = days, parms = pars)
+# extract the results
+res_take4 <- as.data.frame(res) %>% 
+  gather(key = "animal", value = "pop", -time)
+# graph both populations over time
+p4 <- ggplot(res_take4, aes(time, pop, col = animal)) +
+  geom_line() + 
+  theme_classic()
+p4
+
+
+# check our metric value (prey pop above at least 50 individuals after 10 years)
+# this is how we define stability
+if (!3650 %in% res_take4$time) {
+  print("Hunting target is not sustainable: model did not reach 10 years.")
+} else if (res_take4$pop[res_take4$time == 3650 & res_take4$animal == "prey"] >= 50) {
+  print("The hunting target is sustainable: prey population above threshold 10 years into the future.")
+} else {
+  print("Hunting target is not sustainable: prey population below threshold.")
+}
+```
+
+#### Discussion
+
+In this assignment, we explored the effects of hunting on predator-prey dynamics using a modified Lotka-Volterra model. We defined stability as the ability of the prey and predator populations to remain above a threshold of **50 individuals** for **10 years** into the future. Through our exploration, we found that different hunting rates significantly affected the stability of both populations. We determined that a hunting rate of **0.1** (proportion of prey population that's hunted) was sustainable, allowing the prey population to remain above the threshold for 10 years, and recommend this as a hunting target. Higher hunting rates (i.e., 0.5, 0.4, 0.3) led to unsustainable prey populations.
+
+
+
+
+
+
+
+
+

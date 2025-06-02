@@ -2,7 +2,7 @@
 #'
 #' function computes the rate of change of populations in a predictor prey interaction
 #' @param t  time (days)
-#' @param pop datatype list initial conditions; list with two values prey=number of prey and pred=number of predictor
+#' @param pop datatype list initial conditions; list with two values prey=number of prey and pred=number of predator
 #' @param pars datatype list  coefficient in Lotka-Voltera pars$rprey, pars$alpha, pars$eff, par$pmort
 #'  \emph{rprey} is growth rate of prey population;
 #'  \emph{eff} is the rate of ingestion of prey by predators
@@ -13,7 +13,7 @@
 #'  \emph{min_prey_thresh} minimum prey population above which hunting is allowed
 #'  
 #' @examples
-#' hunt_lotvmodK(t = 1, pop = list(1, 2), pop = list(0.5, 0.3, 0.2, 0.2)) 
+#' hunt_lotvmodK(t = 1, pop = list(1, 2), pars = list(0.5, 0.3, 0.2, 0.2)) 
 #'
 #' pars <- c(rprey = 0.5, alpha = 0.3, eff = 0.2, pmort = 0.2, K = 10, hunt_rate = 0.1, min_prey_thresh = 2)
 #' currpop <- c(prey = 1, pred = 1)

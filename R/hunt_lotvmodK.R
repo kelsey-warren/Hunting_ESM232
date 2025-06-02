@@ -32,7 +32,7 @@ hunt_lotvmodK <- function(t, pop, pars) {
     # apply hunting only if hunting take is less than prey pop
     # should never hunt more prey than exist as long as hunt_rate is less than 1
     if (hunt_rate >= 1) {
-      stop("Hunting rate cannot equal or exceed prey population size (must be < 1).")
+      stop("Hunting take cannot equal or exceed prey population size (rate must be < 1).")
     }
     
     # apply hunting if prey pop is greater than a certain minimum prey pop

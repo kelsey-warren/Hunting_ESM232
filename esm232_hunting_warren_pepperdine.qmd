@@ -64,6 +64,8 @@ To "explore" hunting, we're simply trying different values for the hunting rate 
 
 For all of the following model runs, we keep all parameters constant except for the hunting rate and run the model for 10 years to see how the populations of both predator and prey change over time. After each run we check the prey population at the end of the 10 years to see if it is above 50 individuals. If it is, we consider that a "sustainable" hunting target.
 
+### Simple exploration
+
 ###### Take 1
 
 -   `hunt_rate` = 0.5
@@ -71,14 +73,14 @@ For all of the following model runs, we keep all parameters constant except for 
 ```{r, echo=TRUE, output=FALSE}
 # set parameter list (best guess assumptions from assignment description)
 pars <- c(rprey = 0.95, alpha = 0.01, eff = 0.6, pmort = 0.4, 
-           K = 2000, hunt_rate = 0.5, min_prey_thresh = 200)
+           K = 2000, hunt_rate = 0.5, min_prey_thresh = 50)
 
 
 # evaluate 10 years into the future 
 days <- seq(from = 1, to = 3650)
 
 # see what happens when we start with 1000 prey and 100 predators
-currpop <- c(prey = 1000, pred = 100)
+currpop <- c(prey = 500, pred = 50)
 # run our differential equation solver
 res <- ode(func = hunt_lotvmodK, y = currpop, times = days, parms = pars, method = "ode45")
 # extract the results
@@ -106,12 +108,12 @@ if (!3650 %in% res_take1$time) {
 
 ###### Take 2
 
--   `hunt_rate` = 0.4
+-   `hunt_rate` = 0.99
 
 ```{r, echo=TRUE, output=FALSE}
 # set parameter list 
 pars <- c(rprey = 0.95, alpha = 0.01, eff = 0.6, pmort = 0.4, 
-           K = 2000, hunt_rate = 0.4, min_prey_thresh = 200)
+           K = 2000, hunt_rate = 0.99, min_prey_thresh = 200)
 
 
 # run our differential equation solver
@@ -212,36 +214,37 @@ if (!3650 %in% res_take4$time) {
 }
 ```
 
-###### Take 5
+### Deeper exploration
 
-Range of hunting rates
+###### Take 5a
 
--   `hunt_rate` = 0.5
+Range of hunt_rate values
+
+-   `hunt_rate` from 0 to 0.9 by 0.05
 
 ```{r}
 
 # investigating how prey pop at year 10 changes depending on hunt_rate value
 
 
-# make a vector of input prey values
+# make a vector of input prey and hunt_rate values
 hunt_rate_vals <- seq(0, 0.9, by = 0.05)
 
 # fixed values for this run
 times <- seq(0, 3650) # 10 years
 init_pop <- c(prey = 500, pred = 50)  
-K <- 2000  # prey carrying capacity
 
 # create an empty data frame for results
-res_5 <- data.frame(hunt_rate = numeric(0), prey_at_100 = numeric(0))
+res_5 <- data.frame(hunt_rate = numeric(0), prey_at_10 = numeric(0))
 
 # loop through hunt rates and obtain prey pop sizes at year 10
 for (h in hunt_rate_vals) {
   # Define parameters, including the current hunt_rate
-  pars <- c(rprey = 0.5, alpha = 0.3, eff = 0.2, pmort = 0.2,
-            hunt_rate = h, min_prey_thresh = 50, K = K)
+  pars <- c(rprey = 0.05, alpha = 0.01, eff = 0.6, pmort = 0.4,
+            hunt_rate = h, min_prey_thresh = 50, K = 2000)
   
   # Run simulation
-  res <- ode(y = init_pop, times = times, func = hunt_lotvmodK, parms = pars, method = "ode45")
+  res <- ode(y = init_pop, times = times, func = hunt_lotvmodK, parms = pars, method = "euler")
   res_take5 <- as.data.frame(res)
 
   # Get prey value at year 10 
@@ -267,6 +270,174 @@ p5
 
 ```
 
-#### Discussion
+Interpretation: In this assignment, we explored the effects of hunting on predator-prey dynamics using a modified Lotka-Volterra model. We defined stability as the ability of the prey and predator populations to remain above a threshold of **50 individuals** for **10 years** into the future. Through our exploration, we found that different hunting rates significantly affected the stability of both populations. We determined that a hunting rate of **0.25** (proportion of prey population that's hunted) was sustainable, allowing the prey population to remain as high as possible at the 10 year mark, and recommend that no more than 25% of prey populations are allowed to be hunted. Higher hunting rates (i.e., 0.6, 0.5, 0.4) led to unsustainable prey populations.
 
-In this assignment, we explored the effects of hunting on predator-prey dynamics using a modified Lotka-Volterra model. We defined stability as the ability of the prey and predator populations to remain above a threshold of **50 individuals** for **10 years** into the future. Through our exploration, we found that different hunting rates significantly affected the stability of both populations. We determined that a hunting rate of **0.25** (proportion of prey population that's hunted) was sustainable, allowing the prey population to remain as high as possible at the 10 year mark, and recommend that no more than 25% of prey populations are allowed to be hunted. Higher hunting rates (i.e., 0.6, 0.5, 0.4) led to unsustainable prey populations.
+Note:
+
+Our metric value, prey pop at year 10/day 3650, is appearing to be nearly the same across a broad range of hunt_rate values, which we attribute to the high rprey value provided as default (0.95). When we decrease this value (see below) to 0.5 and 0.05, we see greater differences in our metric value at year 10 across the same range of hunt_rate values. Intuitively, this makes sense, as rprey is the growth rate of prey population, thus if the prey population can rapidly regrow after significant hunting and/or predation, the prey population after 10 years could appear similar across different hunting limitations.
+
+#### Take 5b: range of hunt_rate values and range of initial prey values
+
+```{r}
+
+# define ranges
+hunt_rate_vals <- seq(0, 0.9, by = 0.1)
+ini_prey_vals <- seq(100, 1000, by = 100)
+
+# fixed settings
+times <- seq(0, 3650, by = 1)  # 10 years
+K <- 2000
+
+# empty results data frame
+results <- data.frame(
+  hunt_rate = numeric(0),
+  ini_prey = numeric(0),
+  prey_at_10yr = numeric(0)
+)
+
+# loop through hunt_rate and ini_prey
+for (h in hunt_rate_vals) {
+  for (ip in ini_prey_vals) {
+    
+    init_pop <- c(prey = ip, pred = 50)
+    
+    pars <- c(rprey = 0.5, alpha = 0.3, eff = 0.2, pmort = 0.2,
+              hunt_rate = h, min_prey_thresh = 50, K = K)
+    
+    # run model
+    res <- ode(y = init_pop, times = times, func = hunt_lotvmodK, parms = pars, method = "ode45")
+    res_df <- as.data.frame(res)
+    
+    # get prey pop at year 10
+    prey_10yr <- res_df$prey[which.min(abs(res_df$time - 3650))]
+    
+    # save result
+    results <- rbind(results, data.frame(
+      hunt_rate = h,
+      ini_prey = ip,
+      prey_at_10yr = prey_10yr
+    ))
+  }
+}
+
+# plot scatter plot
+ggplot(results, aes(x = ini_prey, y = prey_at_10yr, color = factor(hunt_rate))) +
+  geom_point(size = 2) +
+  labs(
+    title = "Prey Population at Year 10",
+    x = "Initial Prey Population",
+    y = "Prey Population at Year 10",
+    color = "Hunt Rate"
+  ) +
+  theme_minimal()
+
+# facet
+ggplot(results, aes(x = ini_prey, y = prey_at_10yr)) +
+  geom_point(color = "darkblue", size = 2) +
+  facet_wrap(~hunt_rate) +
+  labs(
+    title = "Effect of Initial Prey and Hunt Rate on Year-10 Prey",
+    x = "Initial Prey",
+    y = "Prey at Year 10"
+  ) +
+  theme_minimal()
+
+```
+
+#### Interpretation: 
+
+Analyzing prey pop at year 10 over a range of hunt_rate and initial prey pop values yielded similar results. In this updated analysis, a hunt_rate of approximately 0.3 and a starting prey population of between 700 and 1000 yielded the highest prey populations at year 10. Once hunting rates meet and exceed 0.4, prey populations at year 10 exhibit significantly lower values consistently across ranges of initial prey values. Based on this more complex analysis, we would recommend a hunting limit of less than or equal to 30% of the initial prey population.
+
+##### Take 6
+
+```{r}
+# investigating how prey pop at year 10 changes depending on hunt_rate value
+# rprey = 0.5
+
+
+# make a vector of input prey values
+hunt_rate_vals <- seq(0, 0.9, by = 0.05)
+
+# fixed values for this run
+times <- seq(0, 3650) # 10 years
+init_pop <- c(prey = 500, pred = 50)  
+
+# create an empty data frame for results
+res_5 <- data.frame(hunt_rate = numeric(0), prey_at_10 = numeric(0))
+
+# loop through hunt rates and obtain prey pop sizes at year 10
+for (h in hunt_rate_vals) {
+  # Define parameters, including the current hunt_rate
+  pars <- c(rprey = 0.5, alpha = 0.01, eff = 0.6, pmort = 0.4,
+            hunt_rate = h, min_prey_thresh = 50, K = 2000)
+  
+  # Run simulation
+  res <- ode(y = init_pop, times = times, func = hunt_lotvmodK, parms = pars, method = "ode45")
+  res_take5 <- as.data.frame(res)
+
+  # Get prey value at year 10 
+  prey_10 <- res_take5$prey[res_take5$time == 3650]
+  
+  # Save result
+  res_5 <- rbind(res_5, data.frame(hunt_rate = h, prey_at_10 = prey_10))
+}
+
+
+# plot the prey population at 10 years vs hunt_rate
+p5 <- ggplot(res_5, aes(x = hunt_rate, y = prey_at_10)) +
+  geom_point(color = "darkblue", size = 2) +
+  labs(
+    title = "Prey Population at Year 10 vs. Hunt Rate",
+    x = "Hunt Rate",
+    y = "Prey Population at Year 10"
+  ) +
+  theme_minimal()
+p5
+```
+
+##### Take 6
+
+```{r}
+# investigating how prey pop at year 10 changes depending on hunt_rate value
+# rprey = 0.05
+
+
+# make a vector of input prey values
+hunt_rate_vals <- seq(0, 0.9, by = 0.05)
+
+# fixed values for this run
+times <- seq(0, 3650) # 10 years
+init_pop <- c(prey = 500, pred = 50)  
+
+# create an empty data frame for results
+res_5 <- data.frame(hunt_rate = numeric(0), prey_at_10 = numeric(0))
+
+# loop through hunt rates and obtain prey pop sizes at year 10
+for (h in hunt_rate_vals) {
+  # Define parameters, including the current hunt_rate
+  pars <- c(rprey = 0.05, alpha = 0.01, eff = 0.6, pmort = 0.4,
+            hunt_rate = h, min_prey_thresh = 50, K = 2000)
+  
+  # Run simulation
+  res <- ode(y = init_pop, times = times, func = hunt_lotvmodK, parms = pars, method = "ode45")
+  res_take5 <- as.data.frame(res)
+
+  # Get prey value at year 10 
+  prey_10 <- res_take5$prey[res_take5$time == 3650]
+  
+  # Save result
+  res_5 <- rbind(res_5, data.frame(hunt_rate = h, prey_at_10 = prey_10))
+}
+
+
+# plot the prey population at 10 years vs hunt_rate
+p5 <- ggplot(res_5, aes(x = hunt_rate, y = prey_at_10)) +
+  geom_point(color = "darkblue", size = 2) +
+  labs(
+    title = "Prey Population at Year 10 vs. Hunt Rate",
+    x = "Hunt Rate",
+    y = "Prey Population at Year 10"
+  ) +
+  theme_minimal()
+p5
+```

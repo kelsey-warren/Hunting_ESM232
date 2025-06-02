@@ -16,11 +16,11 @@ execute:
 
 ## Load packages
 
-```{r}
+```{r clear env}
 rm(list=ls())
 ```
 
-```{r, echo=TRUE, output=FALSE}
+```{r libraries, echo=TRUE, output=FALSE}
 library(here)
 library(lhs)
 library(epiR)
@@ -42,7 +42,7 @@ We first need to build a model that includes hunting. This will be similar to th
 
 #### Build the hunting model
 
-```{r}
+```{r load hunting model}
 # load the hunting model
 source(here::here("R/hunt_lotvmodK.R"))
 
@@ -70,7 +70,7 @@ For all of the following model runs, we keep all parameters constant except for 
 
 -   `hunt_rate` = 0.5
 
-```{r, echo=TRUE, output=FALSE}
+```{r take 1, echo=TRUE, output=FALSE}
 # set parameter list (best guess assumptions from assignment description)
 pars <- c(rprey = 0.95, alpha = 0.01, eff = 0.6, pmort = 0.4, 
            K = 2000, hunt_rate = 0.5, min_prey_thresh = 50)
@@ -88,7 +88,7 @@ res_take1 <- as.data.frame(res) %>%
   gather(key = "animal", value = "pop", -time)
 ```
 
-```{r}
+```{r take 1 plot}
 # graph both populations over time
 p1 <- ggplot(res_take1, aes(time, pop, col = animal)) +
   geom_line() + 
@@ -110,7 +110,7 @@ if (!3650 %in% res_take1$time) {
 
 -   `hunt_rate` = 0.99
 
-```{r, echo=TRUE, output=FALSE}
+```{r take 2, echo=TRUE, output=FALSE}
 # set parameter list 
 pars <- c(rprey = 0.95, alpha = 0.01, eff = 0.6, pmort = 0.4, 
            K = 2000, hunt_rate = 0.99, min_prey_thresh = 200)
@@ -123,7 +123,7 @@ res_take2 <- as.data.frame(res) %>%
   gather(key = "animal", value = "pop", -time)
 ```
 
-```{r}
+```{r take 2 plot}
 # graph both populations over time
 p2 <- ggplot(res_take2, aes(time, pop, col = animal)) +
   geom_line() + 
@@ -146,7 +146,7 @@ if (!3650 %in% res_take2$time) {
 
 -   `hunt_rate` = 0.3
 
-```{r, echo=TRUE, output=FALSE}
+```{r take 3, echo=TRUE, output=FALSE}
 # set parameter list 
 pars <- c(rprey = 0.95, alpha = 0.01, eff = 0.6, pmort = 0.4, 
            K = 2000, hunt_rate = 0.3, min_prey_thresh = 200)
@@ -159,7 +159,7 @@ res_take3 <- as.data.frame(res) %>%
   gather(key = "animal", value = "pop", -time)
 ```
 
-```{r}
+```{r take 3 plot}
 # graph both populations over time
 p3 <- ggplot(res_take3, aes(time, pop, col = animal)) +
   geom_line() + 
@@ -182,7 +182,7 @@ if (!3650 %in% res_take3$time) {
 
 -   `hunt_rate` = 0.2
 
-```{r, echo=TRUE, output=FALSE}
+```{r take 4, echo=TRUE, output=FALSE}
 # set parameter list 
 pars <- c(rprey = 0.95, alpha = 0.01, eff = 0.6, pmort = 0.4, 
            K = 2000, hunt_rate = 0.2, min_prey_thresh = 200)
@@ -195,7 +195,7 @@ res_take4 <- as.data.frame(res) %>%
   gather(key = "animal", value = "pop", -time)
 ```
 
-```{r}
+```{r take 4 plot}
 # graph both populations over time
 p4 <- ggplot(res_take4, aes(time, pop, col = animal)) +
   geom_line() + 
@@ -222,13 +222,13 @@ Range of hunt_rate values
 
 -   `hunt_rate` from 0 to 0.9 by 0.05
 
-```{r}
+```{r take 5a}
 
 # investigating how prey pop at year 10 changes depending on hunt_rate value
 
 
 # make a vector of input prey and hunt_rate values
-hunt_rate_vals <- seq(0, 0.9, by = 0.05)
+hunt_rate_vals <- seq(0, 0.9, by = 0.1)
 
 # fixed values for this run
 times <- seq(0, 3650) # 10 years
@@ -240,11 +240,11 @@ res_5 <- data.frame(hunt_rate = numeric(0), prey_at_10 = numeric(0))
 # loop through hunt rates and obtain prey pop sizes at year 10
 for (h in hunt_rate_vals) {
   # Define parameters, including the current hunt_rate
-  pars <- c(rprey = 0.05, alpha = 0.01, eff = 0.6, pmort = 0.4,
+  pars <- c(rprey = 0.95, alpha = 0.01, eff = 0.6, pmort = 0.4,
             hunt_rate = h, min_prey_thresh = 50, K = 2000)
   
   # Run simulation
-  res <- ode(y = init_pop, times = times, func = hunt_lotvmodK, parms = pars, method = "euler")
+  res <- ode(y = init_pop, times = times, func = hunt_lotvmodK, parms = pars, method = "ode45")
   res_take5 <- as.data.frame(res)
 
   # Get prey value at year 10 
@@ -278,7 +278,7 @@ Our metric value, prey pop at year 10/day 3650, is appearing to be nearly the sa
 
 #### Take 5b: range of hunt_rate values and range of initial prey values
 
-```{r}
+```{r take 5b}
 
 # define ranges
 hunt_rate_vals <- seq(0, 0.9, by = 0.1)
@@ -301,7 +301,7 @@ for (h in hunt_rate_vals) {
     
     init_pop <- c(prey = ip, pred = 50)
     
-    pars <- c(rprey = 0.5, alpha = 0.3, eff = 0.2, pmort = 0.2,
+    pars <- c(rprey = 0.95, alpha = 0.3, eff = 0.2, pmort = 0.2,
               hunt_rate = h, min_prey_thresh = 50, K = K)
     
     # run model
@@ -350,7 +350,7 @@ Analyzing prey pop at year 10 over a range of hunt_rate and initial prey pop val
 
 ##### Take 6
 
-```{r}
+```{r take 6}
 # investigating how prey pop at year 10 changes depending on hunt_rate value
 # rprey = 0.5
 
@@ -395,9 +395,9 @@ p5 <- ggplot(res_5, aes(x = hunt_rate, y = prey_at_10)) +
 p5
 ```
 
-##### Take 6
+##### Take 7
 
-```{r}
+```{r take 7}
 # investigating how prey pop at year 10 changes depending on hunt_rate value
 # rprey = 0.05
 

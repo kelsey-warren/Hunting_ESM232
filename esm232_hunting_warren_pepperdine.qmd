@@ -26,20 +26,21 @@ library(lhs)
 library(epiR)
 library(tidyverse)
 library(deSolve)
+library(ggplot2)
 ```
 
 ## Overview
 
 This assignment is designed to explore the effects of hunting on predator-prey dynamics using a modified Lotka-Volterra model. We will build a model that incorporates hunting, define a stability metric, and explore different hunting levels and minimum prey populations to find sustainable hunting targets. It's split into two parts:
 
-* **Part 1:** Building the hunting model
-* **Part 2:** Exploring different hunting levels and minimum prey populations to find sustainable hunting targets.
+-   **Part 1:** Building the hunting model
+-   **Part 2:** Exploring different hunting levels and minimum prey populations to find sustainable hunting targets.
 
 ## Part 1
 
 We first need to build a model that includes hunting. This will be similar to the `lotvmodK.R` model, but with an added hunting component. This model needs to ensure that we don't hunt more prey than exist. To do this, we can add a minimum prey population input that must be met before hunting is allowed (only turn on hunting above this value).
 
-#### Build the hunting model 
+#### Build the hunting model
 
 ```{r}
 # load the hunting model
@@ -63,9 +64,9 @@ To "explore" hunting, we're simply trying different values for the hunting rate 
 
 For all of the following model runs, we keep all parameters constant except for the hunting rate and run the model for 10 years to see how the populations of both predator and prey change over time. After each run we check the prey population at the end of the 10 years to see if it is above 50 individuals. If it is, we consider that a "sustainable" hunting target.
 
-###### Take 1 
+###### Take 1
 
-* `hunt_rate` = 0.5 
+-   `hunt_rate` = 0.5
 
 ```{r, echo=TRUE, output=FALSE}
 # set parameter list (best guess assumptions from assignment description)
@@ -79,7 +80,7 @@ days <- seq(from = 1, to = 3650)
 # see what happens when we start with 1000 prey and 100 predators
 currpop <- c(prey = 1000, pred = 100)
 # run our differential equation solver
-res <- ode(func = hunt_lotvmodK, y = currpop, times = days, parms = pars)
+res <- ode(func = hunt_lotvmodK, y = currpop, times = days, parms = pars, method = "ode45")
 # extract the results
 res_take1 <- as.data.frame(res) %>% 
   gather(key = "animal", value = "pop", -time)
@@ -105,7 +106,7 @@ if (!3650 %in% res_take1$time) {
 
 ###### Take 2
 
-* `hunt_rate` = 0.4 
+-   `hunt_rate` = 0.4
 
 ```{r, echo=TRUE, output=FALSE}
 # set parameter list 
@@ -114,7 +115,7 @@ pars <- c(rprey = 0.95, alpha = 0.01, eff = 0.6, pmort = 0.4,
 
 
 # run our differential equation solver
-res <- ode(func = hunt_lotvmodK, y = currpop, times = days, parms = pars)
+res <- ode(func = hunt_lotvmodK, y = currpop, times = days, parms = pars, method = "ode45")
 # extract the results
 res_take2 <- as.data.frame(res) %>% 
   gather(key = "animal", value = "pop", -time)
@@ -141,7 +142,7 @@ if (!3650 %in% res_take2$time) {
 
 ###### Take 3
 
-* `hunt_rate` = 0.3 
+-   `hunt_rate` = 0.3
 
 ```{r, echo=TRUE, output=FALSE}
 # set parameter list 
@@ -150,7 +151,7 @@ pars <- c(rprey = 0.95, alpha = 0.01, eff = 0.6, pmort = 0.4,
 
 
 # run our differential equation solver
-res <- ode(func = hunt_lotvmodK, y = currpop, times = days, parms = pars)
+res <- ode(func = hunt_lotvmodK, y = currpop, times = days, parms = pars, method = "ode45")
 # extract the results
 res_take3 <- as.data.frame(res) %>% 
   gather(key = "animal", value = "pop", -time)
@@ -177,7 +178,7 @@ if (!3650 %in% res_take3$time) {
 
 ###### Take 4
 
-* `hunt_rate` = 0.2 
+-   `hunt_rate` = 0.2
 
 ```{r, echo=TRUE, output=FALSE}
 # set parameter list 
@@ -186,7 +187,7 @@ pars <- c(rprey = 0.95, alpha = 0.01, eff = 0.6, pmort = 0.4,
 
 
 # run our differential equation solver
-res <- ode(func = hunt_lotvmodK, y = currpop, times = days, parms = pars)
+res <- ode(func = hunt_lotvmodK, y = currpop, times = days, parms = pars, method = "ode45")
 # extract the results
 res_take4 <- as.data.frame(res) %>% 
   gather(key = "animal", value = "pop", -time)
@@ -211,15 +212,61 @@ if (!3650 %in% res_take4$time) {
 }
 ```
 
+###### Take 5
+
+Range of hunting rates
+
+-   `hunt_rate` = 0.5
+
+```{r}
+
+# investigating how prey pop at year 10 changes depending on hunt_rate value
+
+
+# make a vector of input prey values
+hunt_rate_vals <- seq(0, 0.9, by = 0.05)
+
+# fixed values for this run
+times <- seq(0, 3650) # 10 years
+init_pop <- c(prey = 500, pred = 50)  
+K <- 2000  # prey carrying capacity
+
+# create an empty data frame for results
+res_5 <- data.frame(hunt_rate = numeric(0), prey_at_100 = numeric(0))
+
+# loop through hunt rates and obtain prey pop sizes at year 10
+for (h in hunt_rate_vals) {
+  # Define parameters, including the current hunt_rate
+  pars <- c(rprey = 0.5, alpha = 0.3, eff = 0.2, pmort = 0.2,
+            hunt_rate = h, min_prey_thresh = 50, K = K)
+  
+  # Run simulation
+  res <- ode(y = init_pop, times = times, func = hunt_lotvmodK, parms = pars, method = "ode45")
+  res_take5 <- as.data.frame(res)
+
+  # Get prey value at year 10 
+  prey_10 <- res_take5$prey[res_take5$time == 3650]
+  
+  # Save result
+  res_5 <- rbind(res_5, data.frame(hunt_rate = h, prey_at_10 = prey_10))
+}
+
+
+# plot the prey population at 10 years vs hunt_rate
+p5 <- ggplot(res_5, aes(x = hunt_rate, y = prey_at_10)) +
+  geom_point(color = "darkblue", size = 2) +
+  labs(
+    title = "Prey Population at Year 10 vs. Hunt Rate",
+    x = "Hunt Rate",
+    y = "Prey Population at Year 10"
+  ) +
+  theme_minimal()
+p5
+
+# based on the output graph of prey pop at year 10 (day 3650) vs hunt_rate, the highest prey pop value at year 10 is with a hunt_rate of 0.25. Thus, focusing only on our metric of choice for stability here (highest prey population possibly at year 10/day 3650), we recommend a hunt_rate of 0.25 to support maximum prey population size to support not just prey species existence but also that of predators and the recreational income/conservation benefits that come with allowing for hunting of this prey species.
+
+```
+
 #### Discussion
 
-In this assignment, we explored the effects of hunting on predator-prey dynamics using a modified Lotka-Volterra model. We defined stability as the ability of the prey and predator populations to remain above a threshold of **50 individuals** for **10 years** into the future. Through our exploration, we found that different hunting rates significantly affected the stability of both populations. We determined that a hunting rate of **0.1** (proportion of prey population that's hunted) was sustainable, allowing the prey population to remain above the threshold for 10 years, and recommend this as a hunting target. Higher hunting rates (i.e., 0.5, 0.4, 0.3) led to unsustainable prey populations.
-
-
-
-
-
-
-
-
-
+In this assignment, we explored the effects of hunting on predator-prey dynamics using a modified Lotka-Volterra model. We defined stability as the ability of the prey and predator populations to remain above a threshold of **50 individuals** for **10 years** into the future. Through our exploration, we found that different hunting rates significantly affected the stability of both populations. We determined that a hunting rate of **0.25** (proportion of prey population that's hunted) was sustainable, allowing the prey population to remain as high as possible at the 10 year mark, and recommend that no more than 25% of prey populations are allowed to be hunted. Higher hunting rates (i.e., 0.6, 0.5, 0.4) led to unsustainable prey populations.

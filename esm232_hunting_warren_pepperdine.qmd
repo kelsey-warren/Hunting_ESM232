@@ -67,22 +67,25 @@ For all of the following model runs, we keep all parameters constant except for 
 
 * `hunt_rate` = 0.5 
 
-```{r}
+```{r, echo=TRUE, output=FALSE}
 # set parameter list (best guess assumptions from assignment description)
 pars <- c(rprey = 0.95, alpha = 0.01, eff = 0.6, pmort = 0.4, 
-           K = 2000, hunt_rate = 0.5, min_prey_thresh = 50)
+           K = 2000, hunt_rate = 0.5, min_prey_thresh = 200)
 
 
 # evaluate 10 years into the future 
 days <- seq(from = 1, to = 3650)
 
 # see what happens when we start with 1000 prey and 100 predators
-currpop <- c(prey = 500, pred = 100)
+currpop <- c(prey = 1000, pred = 100)
 # run our differential equation solver
 res <- ode(func = hunt_lotvmodK, y = currpop, times = days, parms = pars)
 # extract the results
 res_take1 <- as.data.frame(res) %>% 
   gather(key = "animal", value = "pop", -time)
+```
+
+```{r}
 # graph both populations over time
 p1 <- ggplot(res_take1, aes(time, pop, col = animal)) +
   geom_line() + 
@@ -104,10 +107,10 @@ if (!3650 %in% res_take1$time) {
 
 * `hunt_rate` = 0.4 
 
-```{r}
+```{r, echo=TRUE, output=FALSE}
 # set parameter list 
 pars <- c(rprey = 0.95, alpha = 0.01, eff = 0.6, pmort = 0.4, 
-           K = 2000, hunt_rate = 0.4, min_prey_thresh = 50)
+           K = 2000, hunt_rate = 0.4, min_prey_thresh = 200)
 
 
 # run our differential equation solver
@@ -115,6 +118,9 @@ res <- ode(func = hunt_lotvmodK, y = currpop, times = days, parms = pars)
 # extract the results
 res_take2 <- as.data.frame(res) %>% 
   gather(key = "animal", value = "pop", -time)
+```
+
+```{r}
 # graph both populations over time
 p2 <- ggplot(res_take2, aes(time, pop, col = animal)) +
   geom_line() + 
@@ -137,10 +143,10 @@ if (!3650 %in% res_take2$time) {
 
 * `hunt_rate` = 0.3 
 
-```{r}
+```{r, echo=TRUE, output=FALSE}
 # set parameter list 
 pars <- c(rprey = 0.95, alpha = 0.01, eff = 0.6, pmort = 0.4, 
-           K = 2000, hunt_rate = 0.3, min_prey_thresh = 50)
+           K = 2000, hunt_rate = 0.3, min_prey_thresh = 200)
 
 
 # run our differential equation solver
@@ -148,6 +154,9 @@ res <- ode(func = hunt_lotvmodK, y = currpop, times = days, parms = pars)
 # extract the results
 res_take3 <- as.data.frame(res) %>% 
   gather(key = "animal", value = "pop", -time)
+```
+
+```{r}
 # graph both populations over time
 p3 <- ggplot(res_take3, aes(time, pop, col = animal)) +
   geom_line() + 
@@ -170,10 +179,10 @@ if (!3650 %in% res_take3$time) {
 
 * `hunt_rate` = 0.2 
 
-```{r}
+```{r, echo=TRUE, output=FALSE}
 # set parameter list 
 pars <- c(rprey = 0.95, alpha = 0.01, eff = 0.6, pmort = 0.4, 
-           K = 2000, hunt_rate = 0.2, min_prey_thresh = 50)
+           K = 2000, hunt_rate = 0.2, min_prey_thresh = 200)
 
 
 # run our differential equation solver
@@ -181,6 +190,9 @@ res <- ode(func = hunt_lotvmodK, y = currpop, times = days, parms = pars)
 # extract the results
 res_take4 <- as.data.frame(res) %>% 
   gather(key = "animal", value = "pop", -time)
+```
+
+```{r}
 # graph both populations over time
 p4 <- ggplot(res_take4, aes(time, pop, col = animal)) +
   geom_line() + 

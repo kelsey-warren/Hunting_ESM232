@@ -3198,23 +3198,17 @@ vertical-align: -.125em;
 <span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="co"># see what happens when we start with 1000 prey and 100 predators</span></span>
 <span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>currpop <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="at">prey =</span> <span class="dv">500</span>, <span class="at">pred =</span> <span class="dv">100</span>)</span>
 <span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="co"># run our differential equation solver</span></span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">ode</span>(<span class="at">func =</span> hunt_lotvmodK, <span class="at">y =</span> currpop, <span class="at">times =</span> days, <span class="at">parms =</span> pars)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>DLSODA-  At current T (=R1), MXSTEP (=I1) steps   
-      taken on this call before reaching TOUT     
-In above message, I1 = 5000
- 
-In above message, R1 = 19.8405
- </code></pre>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">ode</span>(<span class="at">func =</span> hunt_lotvmodK, <span class="at">y =</span> currpop, <span class="at">times =</span> days, <span class="at">parms =</span> pars)</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="co"># extract the results</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>res_take1 <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(res) <span class="sc">%&gt;%</span> </span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gather</span>(<span class="at">key =</span> <span class="st">&quot;animal&quot;</span>, <span class="at">value =</span> <span class="st">&quot;pop&quot;</span>, <span class="sc">-</span>time)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># extract the results</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>res_take1 <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(res) <span class="sc">%&gt;%</span> </span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gather</span>(<span class="at">key =</span> <span class="st">&quot;animal&quot;</span>, <span class="at">value =</span> <span class="st">&quot;pop&quot;</span>, <span class="sc">-</span>time)</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co"># graph both populations over time</span></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(res_take1, <span class="fu">aes</span>(time, pop, <span class="at">col =</span> animal)) <span class="sc">+</span></span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>() <span class="sc">+</span> </span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()</span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>p1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># graph both populations over time</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(res_take1, <span class="fu">aes</span>(time, pop, <span class="at">col =</span> animal)) <span class="sc">+</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>() <span class="sc">+</span> </span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>p1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -3222,15 +3216,15 @@ In above message, R1 = 19.8405
 </figure>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># check our metric value (prey pop above at least 50 individuals after 10 years)</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="co"># this is how we define stability</span></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="dv">3650</span> <span class="sc">%in%</span> res_take1<span class="sc">$</span>time) {</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="st">&quot;Hunting target is not sustainable: model did not reach 10 years.&quot;</span>)</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> <span class="cf">if</span> (res_take1<span class="sc">$</span>pop[res_take1<span class="sc">$</span>time <span class="sc">==</span> <span class="dv">3650</span> <span class="sc">&amp;</span> res_take1<span class="sc">$</span>animal <span class="sc">==</span> <span class="st">&quot;prey&quot;</span>] <span class="sc">&gt;=</span> <span class="dv">50</span>) {</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="st">&quot;The hunting target is sustainable.&quot;</span>)</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="st">&quot;Hunting target is not sustainable: prey population below threshold.&quot;</span>)</span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># check our metric value (prey pop above at least 50 individuals after 10 years)</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co"># this is how we define stability</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="dv">3650</span> <span class="sc">%in%</span> res_take1<span class="sc">$</span>time) {</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="st">&quot;Hunting target is not sustainable: model did not reach 10 years.&quot;</span>)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> <span class="cf">if</span> (res_take1<span class="sc">$</span>pop[res_take1<span class="sc">$</span>time <span class="sc">==</span> <span class="dv">3650</span> <span class="sc">&amp;</span> res_take1<span class="sc">$</span>animal <span class="sc">==</span> <span class="st">&quot;prey&quot;</span>] <span class="sc">&gt;=</span> <span class="dv">50</span>) {</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="st">&quot;The hunting target is sustainable.&quot;</span>)</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="st">&quot;Hunting target is not sustainable: prey population below threshold.&quot;</span>)</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] &quot;Hunting target is not sustainable: model did not reach 10 years.&quot;</code></pre>
 </div>
@@ -3242,29 +3236,23 @@ In above message, R1 = 19.8405
 <li><code>hunt_rate</code> = 0.4</li>
 </ul>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># set parameter list </span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>pars <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="at">rprey =</span> <span class="fl">0.95</span>, <span class="at">alpha =</span> <span class="fl">0.01</span>, <span class="at">eff =</span> <span class="fl">0.6</span>, <span class="at">pmort =</span> <span class="fl">0.4</span>, </span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">K =</span> <span class="dv">2000</span>, <span class="at">hunt_rate =</span> <span class="fl">0.4</span>, <span class="at">min_prey_thresh =</span> <span class="dv">50</span>)</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="co"># run our differential equation solver</span></span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">ode</span>(<span class="at">func =</span> hunt_lotvmodK, <span class="at">y =</span> currpop, <span class="at">times =</span> days, <span class="at">parms =</span> pars)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>DLSODA-  At current T (=R1), MXSTEP (=I1) steps   
-      taken on this call before reaching TOUT     
-In above message, I1 = 5000
- 
-In above message, R1 = 22.5497
- </code></pre>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># set parameter list </span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>pars <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="at">rprey =</span> <span class="fl">0.95</span>, <span class="at">alpha =</span> <span class="fl">0.01</span>, <span class="at">eff =</span> <span class="fl">0.6</span>, <span class="at">pmort =</span> <span class="fl">0.4</span>, </span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">K =</span> <span class="dv">2000</span>, <span class="at">hunt_rate =</span> <span class="fl">0.4</span>, <span class="at">min_prey_thresh =</span> <span class="dv">50</span>)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="co"># run our differential equation solver</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">ode</span>(<span class="at">func =</span> hunt_lotvmodK, <span class="at">y =</span> currpop, <span class="at">times =</span> days, <span class="at">parms =</span> pars)</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="co"># extract the results</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>res_take2 <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(res) <span class="sc">%&gt;%</span> </span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gather</span>(<span class="at">key =</span> <span class="st">&quot;animal&quot;</span>, <span class="at">value =</span> <span class="st">&quot;pop&quot;</span>, <span class="sc">-</span>time)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># extract the results</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>res_take2 <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(res) <span class="sc">%&gt;%</span> </span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gather</span>(<span class="at">key =</span> <span class="st">&quot;animal&quot;</span>, <span class="at">value =</span> <span class="st">&quot;pop&quot;</span>, <span class="sc">-</span>time)</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co"># graph both populations over time</span></span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>p2 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(res_take2, <span class="fu">aes</span>(time, pop, <span class="at">col =</span> animal)) <span class="sc">+</span></span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>() <span class="sc">+</span> </span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()</span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>p2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># graph both populations over time</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>p2 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(res_take2, <span class="fu">aes</span>(time, pop, <span class="at">col =</span> animal)) <span class="sc">+</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>() <span class="sc">+</span> </span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>p2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -3272,15 +3260,15 @@ In above message, R1 = 22.5497
 </figure>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># check our metric value (prey pop above at least 50 individuals after 10 years)</span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="co"># this is how we define stability</span></span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="dv">3650</span> <span class="sc">%in%</span> res_take2<span class="sc">$</span>time) {</span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="st">&quot;Hunting target is not sustainable: model did not reach 10 years.&quot;</span>)</span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> <span class="cf">if</span> (res_take2<span class="sc">$</span>pop[res_take2<span class="sc">$</span>time <span class="sc">==</span> <span class="dv">3650</span> <span class="sc">&amp;</span> res_take2<span class="sc">$</span>animal <span class="sc">==</span> <span class="st">&quot;prey&quot;</span>] <span class="sc">&gt;=</span> <span class="dv">50</span>) {</span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="st">&quot;The hunting target is sustainable: prey population above threshold 10 years into the future.&quot;</span>)</span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="st">&quot;Hunting target is not sustainable: prey population below threshold.&quot;</span>)</span>
-<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># check our metric value (prey pop above at least 50 individuals after 10 years)</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="co"># this is how we define stability</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="dv">3650</span> <span class="sc">%in%</span> res_take2<span class="sc">$</span>time) {</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="st">&quot;Hunting target is not sustainable: model did not reach 10 years.&quot;</span>)</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> <span class="cf">if</span> (res_take2<span class="sc">$</span>pop[res_take2<span class="sc">$</span>time <span class="sc">==</span> <span class="dv">3650</span> <span class="sc">&amp;</span> res_take2<span class="sc">$</span>animal <span class="sc">==</span> <span class="st">&quot;prey&quot;</span>] <span class="sc">&gt;=</span> <span class="dv">50</span>) {</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="st">&quot;The hunting target is sustainable: prey population above threshold 10 years into the future.&quot;</span>)</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="st">&quot;Hunting target is not sustainable: prey population below threshold.&quot;</span>)</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] &quot;Hunting target is not sustainable: model did not reach 10 years.&quot;</code></pre>
 </div>
@@ -3292,29 +3280,23 @@ In above message, R1 = 22.5497
 <li><code>hunt_rate</code> = 0.3</li>
 </ul>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># set parameter list </span></span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>pars <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="at">rprey =</span> <span class="fl">0.95</span>, <span class="at">alpha =</span> <span class="fl">0.01</span>, <span class="at">eff =</span> <span class="fl">0.6</span>, <span class="at">pmort =</span> <span class="fl">0.4</span>, </span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">K =</span> <span class="dv">2000</span>, <span class="at">hunt_rate =</span> <span class="fl">0.3</span>, <span class="at">min_prey_thresh =</span> <span class="dv">50</span>)</span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="co"># run our differential equation solver</span></span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">ode</span>(<span class="at">func =</span> hunt_lotvmodK, <span class="at">y =</span> currpop, <span class="at">times =</span> days, <span class="at">parms =</span> pars)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>DLSODA-  At current T (=R1), MXSTEP (=I1) steps   
-      taken on this call before reaching TOUT     
-In above message, I1 = 5000
- 
-In above message, R1 = 32.9369
- </code></pre>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># set parameter list </span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>pars <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="at">rprey =</span> <span class="fl">0.95</span>, <span class="at">alpha =</span> <span class="fl">0.01</span>, <span class="at">eff =</span> <span class="fl">0.6</span>, <span class="at">pmort =</span> <span class="fl">0.4</span>, </span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">K =</span> <span class="dv">2000</span>, <span class="at">hunt_rate =</span> <span class="fl">0.3</span>, <span class="at">min_prey_thresh =</span> <span class="dv">50</span>)</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="co"># run our differential equation solver</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">ode</span>(<span class="at">func =</span> hunt_lotvmodK, <span class="at">y =</span> currpop, <span class="at">times =</span> days, <span class="at">parms =</span> pars)</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="co"># extract the results</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>res_take3 <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(res) <span class="sc">%&gt;%</span> </span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gather</span>(<span class="at">key =</span> <span class="st">&quot;animal&quot;</span>, <span class="at">value =</span> <span class="st">&quot;pop&quot;</span>, <span class="sc">-</span>time)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># extract the results</span></span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>res_take3 <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(res) <span class="sc">%&gt;%</span> </span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gather</span>(<span class="at">key =</span> <span class="st">&quot;animal&quot;</span>, <span class="at">value =</span> <span class="st">&quot;pop&quot;</span>, <span class="sc">-</span>time)</span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="co"># graph both populations over time</span></span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>p3 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(res_take3, <span class="fu">aes</span>(time, pop, <span class="at">col =</span> animal)) <span class="sc">+</span></span>
-<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>() <span class="sc">+</span> </span>
-<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()</span>
-<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>p3</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># graph both populations over time</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>p3 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(res_take3, <span class="fu">aes</span>(time, pop, <span class="at">col =</span> animal)) <span class="sc">+</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>() <span class="sc">+</span> </span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>p3</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -3322,15 +3304,15 @@ In above message, R1 = 32.9369
 </figure>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># check our metric value (prey pop above at least 50 individuals after 10 years)</span></span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="co"># this is how we define stability</span></span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="dv">3650</span> <span class="sc">%in%</span> res_take3<span class="sc">$</span>time) {</span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="st">&quot;Hunting target is not sustainable: model did not reach 10 years.&quot;</span>)</span>
-<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> <span class="cf">if</span> (res_take3<span class="sc">$</span>pop[res_take3<span class="sc">$</span>time <span class="sc">==</span> <span class="dv">3650</span> <span class="sc">&amp;</span> res_take3<span class="sc">$</span>animal <span class="sc">==</span> <span class="st">&quot;prey&quot;</span>] <span class="sc">&gt;=</span> <span class="dv">50</span>) {</span>
-<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="st">&quot;The hunting target is sustainable: prey population above threshold 10 years into the future.&quot;</span>)</span>
-<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
-<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="st">&quot;Hunting target is not sustainable: prey population below threshold.&quot;</span>)</span>
-<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># check our metric value (prey pop above at least 50 individuals after 10 years)</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="co"># this is how we define stability</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="dv">3650</span> <span class="sc">%in%</span> res_take3<span class="sc">$</span>time) {</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="st">&quot;Hunting target is not sustainable: model did not reach 10 years.&quot;</span>)</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> <span class="cf">if</span> (res_take3<span class="sc">$</span>pop[res_take3<span class="sc">$</span>time <span class="sc">==</span> <span class="dv">3650</span> <span class="sc">&amp;</span> res_take3<span class="sc">$</span>animal <span class="sc">==</span> <span class="st">&quot;prey&quot;</span>] <span class="sc">&gt;=</span> <span class="dv">50</span>) {</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="st">&quot;The hunting target is sustainable: prey population above threshold 10 years into the future.&quot;</span>)</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="st">&quot;Hunting target is not sustainable: prey population below threshold.&quot;</span>)</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] &quot;Hunting target is not sustainable: model did not reach 10 years.&quot;</code></pre>
 </div>
@@ -3342,21 +3324,23 @@ In above message, R1 = 32.9369
 <li><code>hunt_rate</code> = 0.2</li>
 </ul>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># set parameter list </span></span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>pars <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="at">rprey =</span> <span class="fl">0.95</span>, <span class="at">alpha =</span> <span class="fl">0.01</span>, <span class="at">eff =</span> <span class="fl">0.6</span>, <span class="at">pmort =</span> <span class="fl">0.4</span>, </span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">K =</span> <span class="dv">2000</span>, <span class="at">hunt_rate =</span> <span class="fl">0.2</span>, <span class="at">min_prey_thresh =</span> <span class="dv">50</span>)</span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a><span class="co"># run our differential equation solver</span></span>
-<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">ode</span>(<span class="at">func =</span> hunt_lotvmodK, <span class="at">y =</span> currpop, <span class="at">times =</span> days, <span class="at">parms =</span> pars)</span>
-<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a><span class="co"># extract the results</span></span>
-<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>res_take4 <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(res) <span class="sc">%&gt;%</span> </span>
-<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gather</span>(<span class="at">key =</span> <span class="st">&quot;animal&quot;</span>, <span class="at">value =</span> <span class="st">&quot;pop&quot;</span>, <span class="sc">-</span>time)</span>
-<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a><span class="co"># graph both populations over time</span></span>
-<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>p4 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(res_take4, <span class="fu">aes</span>(time, pop, <span class="at">col =</span> animal)) <span class="sc">+</span></span>
-<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>() <span class="sc">+</span> </span>
-<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()</span>
-<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>p4</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># set parameter list </span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>pars <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="at">rprey =</span> <span class="fl">0.95</span>, <span class="at">alpha =</span> <span class="fl">0.01</span>, <span class="at">eff =</span> <span class="fl">0.6</span>, <span class="at">pmort =</span> <span class="fl">0.4</span>, </span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">K =</span> <span class="dv">2000</span>, <span class="at">hunt_rate =</span> <span class="fl">0.2</span>, <span class="at">min_prey_thresh =</span> <span class="dv">50</span>)</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a><span class="co"># run our differential equation solver</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">ode</span>(<span class="at">func =</span> hunt_lotvmodK, <span class="at">y =</span> currpop, <span class="at">times =</span> days, <span class="at">parms =</span> pars)</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a><span class="co"># extract the results</span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>res_take4 <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(res) <span class="sc">%&gt;%</span> </span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gather</span>(<span class="at">key =</span> <span class="st">&quot;animal&quot;</span>, <span class="at">value =</span> <span class="st">&quot;pop&quot;</span>, <span class="sc">-</span>time)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># graph both populations over time</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>p4 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(res_take4, <span class="fu">aes</span>(time, pop, <span class="at">col =</span> animal)) <span class="sc">+</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>() <span class="sc">+</span> </span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>p4</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -3364,15 +3348,15 @@ In above message, R1 = 32.9369
 </figure>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># check our metric value (prey pop above at least 50 individuals after 10 years)</span></span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="co"># this is how we define stability</span></span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="dv">3650</span> <span class="sc">%in%</span> res_take4<span class="sc">$</span>time) {</span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="st">&quot;Hunting target is not sustainable: model did not reach 10 years.&quot;</span>)</span>
-<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> <span class="cf">if</span> (res_take4<span class="sc">$</span>pop[res_take4<span class="sc">$</span>time <span class="sc">==</span> <span class="dv">3650</span> <span class="sc">&amp;</span> res_take4<span class="sc">$</span>animal <span class="sc">==</span> <span class="st">&quot;prey&quot;</span>] <span class="sc">&gt;=</span> <span class="dv">50</span>) {</span>
-<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="st">&quot;The hunting target is sustainable: prey population above threshold 10 years into the future.&quot;</span>)</span>
-<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
-<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="st">&quot;Hunting target is not sustainable: prey population below threshold.&quot;</span>)</span>
-<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># check our metric value (prey pop above at least 50 individuals after 10 years)</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="co"># this is how we define stability</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="dv">3650</span> <span class="sc">%in%</span> res_take4<span class="sc">$</span>time) {</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="st">&quot;Hunting target is not sustainable: model did not reach 10 years.&quot;</span>)</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> <span class="cf">if</span> (res_take4<span class="sc">$</span>pop[res_take4<span class="sc">$</span>time <span class="sc">==</span> <span class="dv">3650</span> <span class="sc">&amp;</span> res_take4<span class="sc">$</span>animal <span class="sc">==</span> <span class="st">&quot;prey&quot;</span>] <span class="sc">&gt;=</span> <span class="dv">50</span>) {</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="st">&quot;The hunting target is sustainable: prey population above threshold 10 years into the future.&quot;</span>)</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="st">&quot;Hunting target is not sustainable: prey population below threshold.&quot;</span>)</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] &quot;The hunting target is sustainable: prey population above threshold 10 years into the future.&quot;</code></pre>
 </div>
@@ -3381,7 +3365,7 @@ In above message, R1 = 32.9369
 </section>
 <section id="discussion" class="level4">
 <h4 class="anchored" data-anchor-id="discussion">Discussion</h4>
-<p>In this assignment, we explored the effects of hunting on predator-prey dynamics using a modified Lotka-Volterra model. We defined stability as the ability of the prey and predator populations to remain above a threshold of <strong>50 individuals</strong> for <strong>10 years</strong> into the future. Through our exploration, we found that different hunting rates significantly affected the stability of both populations. We determined that a hunting rate of <strong>0.1</strong> (proportion of prey population that’s hunted) was sustainable, allowing the prey population to remain above the threshold for 10 years, and recommend this as a hunting target. Higher hunting rates, such as <strong>0.2</strong> and <strong>0.4</strong>, and a lower hunting rate of <strong>0.05</strong> led to unsustainable prey populations.</p>
+<p>In this assignment, we explored the effects of hunting on predator-prey dynamics using a modified Lotka-Volterra model. We defined stability as the ability of the prey and predator populations to remain above a threshold of <strong>50 individuals</strong> for <strong>10 years</strong> into the future. Through our exploration, we found that different hunting rates significantly affected the stability of both populations. We determined that a hunting rate of <strong>0.1</strong> (proportion of prey population that’s hunted) was sustainable, allowing the prey population to remain above the threshold for 10 years, and recommend this as a hunting target. Higher hunting rates (i.e., 0.5, 0.4, 0.3) led to unsustainable prey populations.</p>
 </section>
 </section>
 

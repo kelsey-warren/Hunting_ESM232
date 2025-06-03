@@ -359,28 +359,44 @@ Analyzing prey pop at year 10 over a range of hunt_rate and initial prey pop val
 hunt_rate_vals <- seq(0, 0.9, by = 0.1)
 
 # fixed values for this run
-times <- seq(0, 3650) # 10 years
+times <- seq(0, 3650, by = 10) # 10 years
 init_pop <- c(prey = 500, pred = 50)  
 
 # create an empty data frame for results
 res_5 <- data.frame(hunt_rate = numeric(0), prey_at_10 = numeric(0))
 
 # loop through hunt rates and obtain prey pop sizes at year 10
-for (h in hunt_rate_vals) {
-  # Define parameters, including the current hunt_rate
+# for (h in hunt_rate_vals) {
+#   # Define parameters, including the current hunt_rate
+#   pars <- c(rprey = 0.5, alpha = 0.01, eff = 0.6, pmort = 0.4,
+#             hunt_rate = h, min_prey_thresh = 50, K = 2000)
+#   
+#   # Run simulation
+#   res <- ode(y = init_pop, times = times, func = hunt_lotvmodK, parms = pars, method = "ode45")
+#   res_take5 <- as.data.frame(res)
+# 
+#   # Get prey value at year 10 
+#   prey_10 <- res_take5$prey[res_take5$time == 3650]
+#   
+#   # Save result
+#   res_5 <- rbind(res_5, data.frame(hunt_rate = h, prey_at_10 = prey_10))
+# }
+
+# try lapply for quicker loading
+# More efficient time sequence
+times <- seq(0, 3650, by = 10)
+
+# Use lsoda and lapply to speed up
+res_list <- lapply(hunt_rate_vals, function(h) {
   pars <- c(rprey = 0.5, alpha = 0.01, eff = 0.6, pmort = 0.4,
             hunt_rate = h, min_prey_thresh = 50, K = 2000)
-  
-  # Run simulation
-  res <- ode(y = init_pop, times = times, func = hunt_lotvmodK, parms = pars, method = "ode45")
-  res_take5 <- as.data.frame(res)
+  res <- ode(y = init_pop, times = times, func = hunt_lotvmodK, parms = pars, method = "lsoda")
+  res_df <- as.data.frame(res)
+  prey_10 <- res_df$prey[which.min(abs(res_df$time - 3650))]
+  data.frame(hunt_rate = h, prey_at_10 = prey_10)
+})
+res_5 <- do.call(rbind, res_list)
 
-  # Get prey value at year 10 
-  prey_10 <- res_take5$prey[res_take5$time == 3650]
-  
-  # Save result
-  res_5 <- rbind(res_5, data.frame(hunt_rate = h, prey_at_10 = prey_10))
-}
 
 
 # plot the prey population at 10 years vs hunt_rate
@@ -406,28 +422,43 @@ p5
 hunt_rate_vals <- seq(0, 0.9, by = 0.1)
 
 # fixed values for this run
-times <- seq(0, 3650) # 10 years
+times <- seq(0, 3650, by = 10) # 10 years
 init_pop <- c(prey = 500, pred = 50)  
 
 # create an empty data frame for results
 res_5 <- data.frame(hunt_rate = numeric(0), prey_at_10 = numeric(0))
 
 # loop through hunt rates and obtain prey pop sizes at year 10
-for (h in hunt_rate_vals) {
-  # Define parameters, including the current hunt_rate
+# for (h in hunt_rate_vals) {
+#   # Define parameters, including the current hunt_rate
+#   pars <- c(rprey = 0.05, alpha = 0.01, eff = 0.6, pmort = 0.4,
+#             hunt_rate = h, min_prey_thresh = 50, K = 2000)
+#   
+#   # Run simulation
+#   res <- ode(y = init_pop, times = times, func = hunt_lotvmodK, parms = pars, method = "lsoda")
+#   res_take5 <- as.data.frame(res)
+# 
+#   # Get prey value at year 10 
+#   prey_10 <- res_take5$prey[res_take5$time == 3650]
+#   
+#   # Save result
+#   res_5 <- rbind(res_5, data.frame(hunt_rate = h, prey_at_10 = prey_10))
+# }
+
+# try lapply for quicker loading
+# More efficient time sequence
+times <- seq(0, 3650, by = 10)
+
+# Use lsoda and lapply to speed up
+res_list <- lapply(hunt_rate_vals, function(h) {
   pars <- c(rprey = 0.05, alpha = 0.01, eff = 0.6, pmort = 0.4,
             hunt_rate = h, min_prey_thresh = 50, K = 2000)
-  
-  # Run simulation
-  res <- ode(y = init_pop, times = times, func = hunt_lotvmodK, parms = pars, method = "ode45")
-  res_take5 <- as.data.frame(res)
-
-  # Get prey value at year 10 
-  prey_10 <- res_take5$prey[res_take5$time == 3650]
-  
-  # Save result
-  res_5 <- rbind(res_5, data.frame(hunt_rate = h, prey_at_10 = prey_10))
-}
+  res <- ode(y = init_pop, times = times, func = hunt_lotvmodK, parms = pars, method = "lsoda")
+  res_df <- as.data.frame(res)
+  prey_10 <- res_df$prey[which.min(abs(res_df$time - 3650))]
+  data.frame(hunt_rate = h, prey_at_10 = prey_10)
+})
+res_5 <- do.call(rbind, res_list)
 
 
 # plot the prey population at 10 years vs hunt_rate

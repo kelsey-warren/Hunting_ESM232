@@ -356,7 +356,7 @@ Analyzing prey pop at year 10 over a range of hunt_rate and initial prey pop val
 
 
 # make a vector of input prey values
-hunt_rate_vals <- seq(0, 0.9, by = 0.05)
+hunt_rate_vals <- seq(0, 0.9, by = 0.1)
 
 # fixed values for this run
 times <- seq(0, 3650) # 10 years
@@ -403,7 +403,7 @@ p5
 
 
 # make a vector of input prey values
-hunt_rate_vals <- seq(0, 0.9, by = 0.05)
+hunt_rate_vals <- seq(0, 0.9, by = 0.1)
 
 # fixed values for this run
 times <- seq(0, 3650) # 10 years
